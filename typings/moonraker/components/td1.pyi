@@ -1,0 +1,39 @@
+import asyncio
+import logging
+from ..common import RequestType as RequestType, WebRequest as WebRequest
+from ..confighelper import ConfigHelper as ConfigHelper
+from ..utils import async_serial as async_serial
+from _typeshed import Incomplete
+from typing import Any
+
+class TD1Connection:
+    config: Incomplete
+    server: Incomplete
+    port: Incomplete
+    serial_number: Incomplete
+    baudrate: Incomplete
+    name: Incomplete
+    logger: Incomplete
+    error_state: bool
+    enabled: bool
+    serial: Incomplete
+    serial_task: asyncio.Task
+    done_initializing: bool
+    def __init__(self, config: ConfigHelper, serial_number: str, port: str, logger: logging.Logger) -> None: ...
+    async def initialize(self) -> None: ...
+    async def readline_with_timeout(self, timeout: float = 5.0) -> bytes | None: ...
+    async def run_serial(self) -> None: ...
+    async def check_error_file(self) -> None: ...
+    async def close(self) -> None: ...
+    async def reboot(self) -> None: ...
+    def get_data(self) -> dict[str, dict[str, Any]]: ...
+
+class TD1:
+    server: Incomplete
+    logger: Incomplete
+    td1_conns: dict[str, TD1Connection]
+    def __init__(self, config: ConfigHelper) -> None: ...
+    async def close(self) -> None: ...
+    async def component_init(self) -> None: ...
+
+def load_component(config: ConfigHelper) -> TD1: ...

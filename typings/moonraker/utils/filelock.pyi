@@ -1,0 +1,19 @@
+import contextlib
+import pathlib
+from . import ServerError as ServerError
+from _typeshed import Incomplete
+from types import TracebackType
+
+class LockTimeout(ServerError): ...
+
+class AsyncExclusiveFileLock(contextlib.AbstractAsyncContextManager):
+    lock_path: Incomplete
+    timeout: Incomplete
+    fd: int
+    locked: bool
+    required_wait: bool
+    def __init__(self, file_path: pathlib.Path, timeout: int | float = 0) -> None: ...
+    async def __aenter__(self) -> AsyncExclusiveFileLock: ...
+    async def __aexit__(self, __exc_type: type[BaseException] | None, __exc_value: BaseException | None, /, __traceback: TracebackType | None) -> None: ...
+    async def acquire(self) -> None: ...
+    async def release(self) -> None: ...

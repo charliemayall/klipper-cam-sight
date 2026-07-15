@@ -1,0 +1,44 @@
+name: python
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "lib/**"
+      - "component/**"
+      - "install.py"
+      - "install.sh"
+      - "pyproject.toml"
+      - "uv.lock"
+      - "Makefile"
+      - ".github/workflows/python.yml"
+  pull_request:
+    paths:
+      - "lib/**"
+      - "component/**"
+      - "install.py"
+      - "install.sh"
+      - "pyproject.toml"
+      - "uv.lock"
+      - "Makefile"
+      - ".github/workflows/python.yml"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - uses: astral-sh/setup-uv@v5
+
+      - run: uv sync
+
+      - run: make check
+
+      - run: uv run ruff check .
+
+      - run: uv run ty check

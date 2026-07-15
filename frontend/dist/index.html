@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/server/files/cam_sight/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cam Sight</title>
+    <script>
+      try {
+        var themes = ["google", "google-dark", "govuk", "orange-dark"];
+        var darkThemes = ["google-dark", "orange-dark"];
+        var stored = localStorage.getItem("cam-align-theme");
+        var theme = themes.indexOf(stored) >= 0 ? stored : "govuk";
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.classList.toggle(
+          "dark",
+          darkThemes.indexOf(theme) >= 0,
+        );
+      } catch (e) {}
+    </script>
+    <script type="module" crossorigin src="/server/files/cam_sight/assets/index-BwwgWQFV.js"></script>
+    <link rel="stylesheet" crossorigin href="/server/files/cam_sight/assets/index-BIXRnFF-.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

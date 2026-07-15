@@ -1,0 +1,38 @@
+[project]
+name = "klipper-cam-sight"
+version = "0.1.0"
+description = "Camera-based nozzle offset calibration for Klipper toolchangers"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "klippy-stubs>=0.3.0",
+    "ruff>=0.15.21",
+    "ty>=0.0.58",
+]
+
+[tool.uv]
+default-groups = ["dev"]
+
+[tool.ty.src]
+exclude = ["**/typings/**"]
+
+[tool.ty.environment]
+extra-paths = [
+    "typings",
+]
+
+[tool.ruff]
+exclude = ["typings", "**/typings"]
+
+[tool.ruff.lint.per-file-ignores]
+"component/cam_sight.py" = ["E402"]
+
+[tool.pyright]
+pythonVersion = "3.10"
+stubPath = "typings"
+extraPaths = ["typings"]
+exclude = ["**/typings/**"]
+reportMissingModuleSource = false

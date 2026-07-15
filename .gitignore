@@ -1,0 +1,15 @@
+.DS_Store
+__pycache__
+*.pyc
+.venv
+.mypy_cache/
+.ruff_cache/
+*.log
+config.yaml
+offsets.yaml
+cam_sight_debug
+.env
+.vscode/
+node_modules/
+frontend/node_modules/
+*.mp4
