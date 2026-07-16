@@ -23,6 +23,7 @@ SYMLINKS = (
     ("component/cam_sight.py", "cam_sight.py"),
     ("klipper_macro/cam_sight.cfg", "cam_sight.cfg"),
 )
+THEME_FILE = ("mainsail-nav.example.json", "navi.json")
 
 
 def default_moonraker_components() -> Path:
@@ -122,10 +123,11 @@ def configure_moonraker(moonraker_conf: Path) -> list[str]:
 
 def install_mainsail_nav(klipper_config: Path) -> list[str]:
     """Ensure ~/printer_data/config/.theme exists; write navi.json if missing."""
+    local_name, dest_name = THEME_FILE
     theme_dir = klipper_config / ".theme"
     theme_dir.mkdir(parents=True, exist_ok=True)
-    src = PLUGIN_ROOT / "docs" / "mainsail-nav.example.json"
-    dst = theme_dir / "navi.json"
+    src = PLUGIN_ROOT / "docs" / local_name
+    dst = theme_dir / dest_name
     if not src.is_file():
         return [f"WARNING: missing {src}"]
     if dst.exists():
@@ -176,9 +178,7 @@ def install() -> int:
 
     dist = PLUGIN_ROOT / "frontend" / "dist"
     if not dist.is_dir():
-        print(
-            "WARNING: frontend/dist missing - pull latest from git", file=sys.stderr
-        )
+        print("WARNING: frontend/dist missing - pull latest from git", file=sys.stderr)
 
     # Drop pre-rename component symlink if present
     obsolete = moonraker_components / "cam_seek.py"
