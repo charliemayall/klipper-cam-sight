@@ -121,7 +121,7 @@ def backend_for_id(backend_id: str) -> ToolBackend:
     raise ValueError(f"Unknown backend: {backend_id}")
 
 
-# pony: fail loud if naming / resolve drift
+# fail loud if naming / resolve drift
 assert BaseToolBackend().save_variable_names(1) == SaveVariableNames(
     "cam_sight_t1_x", "cam_sight_t1_y"
 )

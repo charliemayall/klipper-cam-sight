@@ -17,8 +17,14 @@ MACRO_CACHE_TTL = 30.0
 BACKEND_PROBE_TTL = 30.0
 BACKEND_PROBE_CACHE_ID = "backend_probe"
 MACRO_CACHE_ID = "macros"
+OBJECT_LIST_CACHE_ID = "object_list"
+TOOL_POSITIONS_MACRO = "gcode_macro TOOL_POSITIONS"
 
 IsReady = Callable[[], Awaitable[bool]]
+
+
+def indx_detected_in_objects(objects: list[str]) -> bool:
+    return "indx" in objects or TOOL_POSITIONS_MACRO in objects
 
 
 def macro_names_from_klippy_objects(objects: list[str]) -> list[str]:
@@ -33,6 +39,9 @@ def macro_names_from_klippy_objects(objects: list[str]) -> list[str]:
 
 class KlipperProbe:
     def __init__(self) -> None:
+        self._object_list_cache: TtlCache[list[str]] = TtlCache(
+            MACRO_CACHE_TTL, cache_id=OBJECT_LIST_CACHE_ID
+        )
         self._macro_cache: TtlCache[list[str]] = TtlCache(
             MACRO_CACHE_TTL, cache_id=MACRO_CACHE_ID
         )
@@ -41,23 +50,28 @@ class KlipperProbe:
     def macro_cache(self) -> TtlCache[list[str]]:
         return self._macro_cache
 
-    async def list_macros(self, klippy: Any, is_ready: IsReady) -> list[str]:
+    async def _get_object_list(self, klippy: Any, is_ready: IsReady) -> list[str]:
         async def fetch() -> list[str] | None:
             if not await is_ready():
                 return None
             try:
                 objects = await klippy.get_object_list(default=[])
             except Exception as exc:
-                logger.warning("cam_sight: could not list klipper macros: %s", exc)
+                logger.warning("cam_sight: could not list klipper objects: %s", exc)
                 return None
             if isinstance(objects, list):
-                return macro_names_from_klippy_objects(objects)
+                return objects
             return None
 
-        macros = await self._macro_cache.get_or_fetch(
+        return await self._object_list_cache.get_or_fetch(
             fetch,
-            fallback=lambda: list(self._macro_cache.stale or []),
+            fallback=lambda: list(self._object_list_cache.stale or []),
         )
+
+    async def list_macros(self, klippy: Any, is_ready: IsReady) -> list[str]:
+        objects = await self._get_object_list(klippy, is_ready)
+        macros = macro_names_from_klippy_objects(objects)
+        self._macro_cache.set(macros)
         return list(macros)
 
     @ttl_cache(
@@ -68,21 +82,15 @@ class KlipperProbe:
     async def has_indx_section(self, klippy: Any, is_ready: IsReady) -> bool | None:
         if not await is_ready():
             return None
-        try:
-            status = await klippy.query_objects(
-                {"configfile": ["config"]},
-                default={},
-            )
-        except Exception as exc:
-            logger.warning("cam_sight: could not read configfile: %s", exc)
+        objects = await self._get_object_list(klippy, is_ready)
+        if not objects:
             return None
-        config = (status.get("configfile") or {}).get("config") or {}
-        return "indx" in config
+        return indx_detected_in_objects(objects)
 
     @ttl_cache(
         ttl_seconds=BACKEND_PROBE_TTL,
         cache_id=BACKEND_PROBE_CACHE_ID,
-        is_cacheable=lambda x: x is not None,
+        is_cacheable=lambda _: True,
     )
     async def synced_tool_count(self, klippy: Any, backend_id: str) -> int | None:
         backend = backend_for_id(backend_id)
@@ -95,3 +103,9 @@ def _self_check() -> None:
     assert macro_names_from_klippy_objects(
         ["toolhead", "gcode_macro FOO", "gcode_macro _BAR", "gcode_macro 9BAD"]
     ) == ["FOO", "_BAR"]
+    assert indx_detected_in_objects(["toolhead", "indx"]) is True
+    assert indx_detected_in_objects(["gcode_macro TOOL_POSITIONS"]) is True
+    assert indx_detected_in_objects(["toolhead", "extruder"]) is False
+
+
+_self_check()

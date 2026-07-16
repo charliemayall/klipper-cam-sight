@@ -299,7 +299,6 @@ class CamSight:
             if self._backend_override is None:
                 return
             self._backend = backend_for_id(self._backend_override)
-            await self._apply_synced_tool_count(self._backend.id.value)
             return
         detected = resolve_tool_backend(has_indx_section=has_indx)
         self._detected_backend_id = detected.id.value
@@ -307,7 +306,8 @@ class CamSight:
             self._backend = backend_for_id(self._backend_override)
         else:
             self._backend = detected
-        await self._apply_synced_tool_count(self._backend.id.value)
+        if has_indx:
+            await self._apply_synced_tool_count(self._backend.id.value)
 
     async def get_status(self, webrequest: WebRequest) -> dict[str, Any]:
         await self._probe.list_macros(self.klippy, self._is_ready)
@@ -501,7 +501,8 @@ class CamSight:
         else:
             self._backend_override = raw
             self._backend = backend_for_id(raw)
-        await self._apply_synced_tool_count(self._backend.id.value)
+        if has_indx:
+            await self._apply_synced_tool_count(self._backend.id.value)
         await self._persist_prefs()
         return self._status_dict()
 

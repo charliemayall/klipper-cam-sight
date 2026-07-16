@@ -1,5 +1,9 @@
 .PHONY: install build-frontend dev-frontend check deploy
 
+DEPLOY_HOST ?=
+# no leading ~/ - the shell expands ~ locally before make sees it
+DEPLOY_PATH ?= klipper-cam-sight
+
 install:
 	bash install.sh
 
@@ -20,10 +24,13 @@ check:
 	_s(); _c(); _p()"
 
 deploy: build-frontend
+	@test -n "$(DEPLOY_HOST)" || (echo "Set DEPLOY_HOST, e.g. pi@printer" && exit 1)
 	rsync -avz --delete \
 		--exclude 'frontend/node_modules' \
 		./ $(DEPLOY_HOST):$(DEPLOY_PATH)/
 	@echo "Deployed to $(DEPLOY_HOST):$(DEPLOY_PATH) - ssh in and run: make install"
 
-# Set DEPLOY_HOST and DEPLOY_PATH, e.g.:
-#   DEPLOY_HOST=pi@printer DEPLOY_PATH=~/klipper-cam-sight make deploy
+# Set DEPLOY_HOST (required) and optionally DEPLOY_PATH (default: klipper-cam-sight).
+# Path is relative to the remote user's home - do not use ~/ (shell expands it locally).
+#   DEPLOY_HOST=pi@printer make deploy
+#   DEPLOY_HOST=pi@printer DEPLOY_PATH=klipper-cam-sight make deploy

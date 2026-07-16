@@ -109,8 +109,10 @@ make dev-frontend    # Vite dev server (uses .env for Moonraker URL if set)
 make build-frontend  # production build → frontend/dist
 ```
 
-Deploy to a printer host (set `DEPLOY_HOST` and `DEPLOY_PATH`):
+Deploy to a printer host (`DEPLOY_PATH` is relative to the remote home - do not use `~/`, the shell expands it locally):
 
 ```bash
-DEPLOY_HOST=pi@printer DEPLOY_PATH=~/klipper-cam-sight make deploy
+DEPLOY_HOST=pi@printer make deploy
+# or explicitly:
+DEPLOY_HOST=pi@printer DEPLOY_PATH=klipper-cam-sight make deploy
 ```
