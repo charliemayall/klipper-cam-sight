@@ -14,9 +14,9 @@ export const BACKEND_INFO: Record<BackendType, BackendInfo> = {
     label: "Base",
     title: "Manual toolchange",
     summary:
-      "For printers without INDX. You load each tool yourself; Cam Sight saves offsets to cam_sight_t{n}_* variables.",
+      "Load each tool yourself. Cam Sight saves offsets to cam_sight_t{n}_* variables.",
     bullets: [
-      "Call APPLY_TOOL_OFFSET TOOL=n from your tool-load macro after Save.",
+      "Call APPLY_TOOL_OFFSET TwOOL=n from your tool-load macro after Save.",
       "Uses cam_sight_t{n}_x / cam_sight_t{n}_y in save_variables.",
       "Tool count is set with +/- in the offsets panel.",
     ],
