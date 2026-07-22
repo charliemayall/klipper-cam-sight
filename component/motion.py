@@ -19,6 +19,14 @@ class MotionPrefs:
     travel_speed: int
 
 
+def clamp_z_approach(approach: float, measure: float) -> float:
+    return max(approach, measure)
+
+
+assert clamp_z_approach(10, 37) == 37
+assert clamp_z_approach(10, 3) == 10
+
+
 async def get_position(klippy: Any) -> tuple[float, float, float]:
     result = await klippy.query_objects({"toolhead": ["position"]})
     pos = result.get("toolhead", {}).get("position", [0, 0, 0])

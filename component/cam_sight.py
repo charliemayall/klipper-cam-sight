@@ -201,6 +201,7 @@ class CamSight:
                 self._backend_override = str(raw)
             else:
                 logger.warning("cam_sight: ignoring invalid backend_override: %s", raw)
+        self.z_approach = motion.clamp_z_approach(self.z_approach, self.z_measure)
 
     async def _persist_prefs(self) -> None:
         fut = self.database.insert_item(DB_NAMESPACE, DB_PREFS_KEY, self._prefs_dict())
@@ -451,6 +452,7 @@ class CamSight:
             if jog <= 0:
                 raise self.server.error("known_jog_mm must be positive")
             self.known_jog_mm = jog
+        self.z_approach = motion.clamp_z_approach(self.z_approach, self.z_measure)
         await self._persist_prefs()
         return self._status_dict()
 
